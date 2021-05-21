@@ -9,67 +9,57 @@ namespace Microsoft.AspNet.WebHooks.Extensions
 {
     public class HttpContentExtensionsTests
     {
-        public static TheoryData<string, bool> JsonMediaTypes
-        {
-            get
+        public static TheoryData<string, bool> JsonMediaTypes =>
+            new TheoryData<string, bool>
             {
-                return new TheoryData<string, bool>
-                {
-                    { "app/json", false },
-                    { "other/json", false },
-                    { "applicationnnn/json", false },
-                    { "texttttt/json", false },
-                    { "aaaplication/json", false },
-                    { "tttext/json", false },
-                    { "aplication/jsonxzy", false },
-                    { "text/jsonxyz", false },
-                    { "application/json", true },
-                    { "application/xyzjson", false },
-                    { "text/xyzjson", false },
-                    { "application/hal-json", false },
-                    { "application/hal;json", false },
-                    { "application/hal+json", true },
-                    { "application/hal+json;x=y", true },
-                    { "text/json", true },
-                    { "text/json;x=y", true },
-                    { "text/hal-json", false },
-                    { "text/hal;json", false },
-                    { "text/hal+json", true },
-                    { "text/hal+json;x=y", true },
-                };
-            }
-        }
+                { "app/json", false },
+                { "other/json", false },
+                { "applicationnnn/json", false },
+                { "texttttt/json", false },
+                { "aaaplication/json", false },
+                { "tttext/json", false },
+                { "aplication/jsonxzy", false },
+                { "text/jsonxyz", false },
+                { "application/json", true },
+                { "application/xyzjson", false },
+                { "text/xyzjson", false },
+                { "application/hal-json", false },
+                { "application/hal;json", false },
+                { "application/hal+json", true },
+                { "application/hal+json;x=y", true },
+                { "text/json", true },
+                { "text/json;x=y", true },
+                { "text/hal-json", false },
+                { "text/hal;json", false },
+                { "text/hal+json", true },
+                { "text/hal+json;x=y", true },
+            };
 
-        public static TheoryData<string, bool> XmlMediaTypes
-        {
-            get
+        public static TheoryData<string, bool> XmlMediaTypes =>
+            new TheoryData<string, bool>
             {
-                return new TheoryData<string, bool>
-                {
-                    { "app/xml", false },
-                    { "other/xml", false },
-                    { "applicationnnn/xml", false },
-                    { "texttttt/xml", false },
-                    { "aaaplication/xml", false },
-                    { "tttext/xml", false },
-                    { "aplication/xmlxzy", false },
-                    { "text/xmlxyz", false },
-                    { "application/xml", true },
-                    { "application/xyzxml", false },
-                    { "text/xyzxml", false },
-                    { "application/hal-xml", false },
-                    { "application/hal;xml", false },
-                    { "application/hal+xml", true },
-                    { "application/hal+xml;x=y", true },
-                    { "text/xml", true },
-                    { "text/xml;x=y", true },
-                    { "text/hal-xml", false },
-                    { "text/hal;xml", false },
-                    { "text/hal+xml", true },
-                    { "text/hal+xml;x=y", true },
-                };
-            }
-        }
+                { "app/xml", false },
+                { "other/xml", false },
+                { "applicationnnn/xml", false },
+                { "texttttt/xml", false },
+                { "aaaplication/xml", false },
+                { "tttext/xml", false },
+                { "aplication/xmlxzy", false },
+                { "text/xmlxyz", false },
+                { "application/xml", true },
+                { "application/xyzxml", false },
+                { "text/xyzxml", false },
+                { "application/hal-xml", false },
+                { "application/hal;xml", false },
+                { "application/hal+xml", true },
+                { "application/hal+xml;x=y", true },
+                { "text/xml", true },
+                { "text/xml;x=y", true },
+                { "text/hal-xml", false },
+                { "text/hal;xml", false },
+                { "text/hal+xml", true },
+                { "text/hal+xml;x=y", true },
+            };
 
         [Fact]
         public void IsJson_HandlesNullContent()

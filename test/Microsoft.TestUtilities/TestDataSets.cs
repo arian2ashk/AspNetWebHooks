@@ -26,45 +26,29 @@ namespace Microsoft.TestUtilities
             }
         }
 
-        public static TheoryData<bool> BoolDataSet
-        {
-            get
-            {
-                return new TheoryData<bool> { true, false };
-            }
-        }
+        public static TheoryData<bool> BoolDataSet => new TheoryData<bool> { true, false };
 
-        public static TheoryData<string> EmptyOrWhiteSpaceStringDataSet
-        {
-            get
+        public static TheoryData<string> EmptyOrWhiteSpaceStringDataSet =>
+            new TheoryData<string>
             {
-                return new TheoryData<string>
-                {
-                    string.Empty,
-                    "   ",
-                    "\t",
-                    "\u2000",
-                    "\u1680",
-                    "\u2028",
-                    "\u2029",
-                };
-            }
-        }
+                string.Empty,
+                "   ",
+                "\t",
+                "\u2000",
+                "\u1680",
+                "\u2028",
+                "\u2029",
+            };
 
-        public static TheoryData<string, string> CaseInsensitiveDataSet
-        {
-            get
+        public static TheoryData<string, string> CaseInsensitiveDataSet =>
+            new TheoryData<string, string>
             {
-                return new TheoryData<string, string>
-                {
-                    { string.Empty, string.Empty },
-                    { "test", "TEST" },
-                    { "TEST", "test" },
-                    { "TeSt", "tEsT" },
-                    { "t e s t", "T E S T" },
-                    { "你好世界", "你好世界" },
-                };
-            }
-        }
+                { string.Empty, string.Empty },
+                { "test", "TEST" },
+                { "TEST", "test" },
+                { "TeSt", "tEsT" },
+                { "t e s t", "T E S T" },
+                { "你好世界", "你好世界" },
+            };
     }
 }

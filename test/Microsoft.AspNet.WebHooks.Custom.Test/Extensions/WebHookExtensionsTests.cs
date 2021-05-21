@@ -17,23 +17,18 @@ namespace Microsoft.AspNet.WebHooks.Extensions
             _webHook.Filters.Add("世界");
         }
 
-        public static TheoryData<string, bool> ActionData
-        {
-            get
+        public static TheoryData<string, bool> ActionData =>
+            new TheoryData<string, bool>
             {
-                return new TheoryData<string, bool>
-                {
-                    { null, false },
-                    { string.Empty, false },
-                    { "你好世界", false },
-                    { "1action", false },
-                    { "action", true },
-                    { "ACTION", true },
-                    { "你好", true },
-                    { "世界", true },
-                };
-            }
-        }
+                { null, false },
+                { string.Empty, false },
+                { "你好世界", false },
+                { "1action", false },
+                { "action", true },
+                { "ACTION", true },
+                { "你好", true },
+                { "世界", true },
+            };
 
         public static TheoryData<string[], bool> AnyActionData
         {

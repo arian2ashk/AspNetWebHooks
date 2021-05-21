@@ -4,6 +4,7 @@
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace Microsoft.AspNet.WebHooks
 {
@@ -26,6 +27,6 @@ namespace Microsoft.AspNet.WebHooks
         /// </summary>
         /// <param name="request">The current <see cref="HttpRequestMessage"/>.</param>
         /// <param name="webHook">The incoming <see cref="WebHook"/> to inspect, manipulate, or reject.</param>
-        Task RegisterAsync(HttpRequestMessage request, WebHook webHook);
+        Task RegisterAsync(HttpRequest request, WebHook webHook);
     }
 }

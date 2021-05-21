@@ -7,8 +7,8 @@ using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.AspNet.WebHooks.Diagnostics;
-using Microsoft.AspNet.WebHooks.Properties;
+using Microsoft.AspNet.WebHooks.Custom.Properties;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.AspNet.WebHooks
 {
@@ -23,7 +23,7 @@ namespace Microsoft.AspNet.WebHooks
 
         private readonly IWebHookStore _webHookStore;
         private readonly IWebHookSender _webHookSender;
-        private readonly ILogger _logger;
+        private readonly ILogger<WebHookManager> _logger;
         private readonly HttpClient _httpClient;
 
         private bool _disposed;
@@ -34,7 +34,7 @@ namespace Microsoft.AspNet.WebHooks
         /// <param name="webHookStore">The current <see cref="IWebHookStore"/>.</param>
         /// <param name="webHookSender">The current <see cref="IWebHookSender"/>.</param>
         /// <param name="logger">The current <see cref="ILogger"/>.</param>
-        public WebHookManager(IWebHookStore webHookStore, IWebHookSender webHookSender, ILogger logger)
+        public WebHookManager(IWebHookStore webHookStore, IWebHookSender webHookSender, ILogger<WebHookManager> logger)
             : this(webHookStore, webHookSender, logger, httpClient: null)
         {
         }
@@ -43,24 +43,11 @@ namespace Microsoft.AspNet.WebHooks
         /// Initialize a new instance of the <see cref="WebHookManager"/> with the given <paramref name="httpClient"/>. This
         /// constructor is intended for unit testing purposes.
         /// </summary>
-        internal WebHookManager(IWebHookStore webHookStore, IWebHookSender webHookSender, ILogger logger, HttpClient httpClient)
+        internal WebHookManager(IWebHookStore webHookStore, IWebHookSender webHookSender, ILogger<WebHookManager> logger, HttpClient httpClient)
         {
-            if (webHookStore == null)
-            {
-                throw new ArgumentNullException(nameof(webHookStore));
-            }
-            if (webHookSender == null)
-            {
-                throw new ArgumentNullException(nameof(webHookSender));
-            }
-            if (logger == null)
-            {
-                throw new ArgumentNullException(nameof(logger));
-            }
-
-            _webHookStore = webHookStore;
-            _webHookSender = webHookSender;
-            _logger = logger;
+            _webHookStore = webHookStore ?? throw new ArgumentNullException(nameof(webHookStore));
+            _webHookSender = webHookSender ?? throw new ArgumentNullException(nameof(webHookSender));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
             _httpClient = httpClient ?? new HttpClient();
         }
@@ -197,11 +184,10 @@ namespace Microsoft.AspNet.WebHooks
             try
             {
                 // If WebHook URI contains a "NoEcho" query parameter then we don't verify the URI using a GET request
-                var parameters = webHook.WebHookUri.ParseQueryString();
-                if (parameters[NoEchoParameter] != null)
+                if (webHook.WebHookUri.Query.IndexOf(NoEchoParameter, StringComparison.CurrentCultureIgnoreCase) >= 0)
                 {
                     var message = string.Format(CultureInfo.CurrentCulture, CustomResources.Manager_NoEcho);
-                    _logger.Info(message);
+                    _logger.LogInformation(message);
                     return;
                 }
 
@@ -223,14 +209,14 @@ namespace Microsoft.AspNet.WebHooks
             catch (Exception ex)
             {
                 var message = string.Format(CultureInfo.CurrentCulture, CustomResources.Manager_VerifyFailure, ex.Message);
-                _logger.Error(message, ex);
+                _logger.LogError(message, ex);
                 throw new InvalidOperationException(message);
             }
 
             if (!response.IsSuccessStatusCode)
             {
                 var message = string.Format(CultureInfo.CurrentCulture, CustomResources.Manager_VerifyFailure, response.StatusCode);
-                _logger.Info(message);
+                _logger.LogInformation(message);
                 throw new InvalidOperationException(message);
             }
 
@@ -238,15 +224,22 @@ namespace Microsoft.AspNet.WebHooks
             if (response.Content == null)
             {
                 var message = CustomResources.Manager_VerifyNoBody;
-                _logger.Error(message);
+                _logger.LogError(message);
                 throw new InvalidOperationException(message);
             }
 
             var actualEcho = await response.Content.ReadAsStringAsync();
+            if (string.IsNullOrEmpty(actualEcho))
+            {
+                var message = CustomResources.Manager_VerifyNoBody;
+                _logger.LogError(message);
+                throw new InvalidOperationException(message);
+            }
+
             if (!string.Equals(actualEcho, echo, StringComparison.Ordinal))
             {
                 var message = CustomResources.Manager_VerifyBadEcho;
-                _logger.Error(message);
+                _logger.LogError(message);
                 throw new InvalidOperationException(message);
             }
         }
@@ -261,7 +254,7 @@ namespace Microsoft.AspNet.WebHooks
             if (!(webHookUri.IsHttp() || webHookUri.IsHttps()))
             {
                 var message = string.Format(CultureInfo.CurrentCulture, CustomResources.Manager_NoHttpUri, webHookUri);
-                _logger.Error(message);
+                _logger.LogError(message);
                 throw new InvalidOperationException(message);
             }
         }

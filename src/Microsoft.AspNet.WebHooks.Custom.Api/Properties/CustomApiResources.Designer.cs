@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Microsoft.AspNet.WebHooks.Properties {
+namespace Microsoft.AspNet.WebHooks.Custom.Api.Properties {
     using System;
     
     
@@ -19,7 +19,7 @@ namespace Microsoft.AspNet.WebHooks.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class CustomApiResources {
@@ -39,7 +39,7 @@ namespace Microsoft.AspNet.WebHooks.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Microsoft.AspNet.WebHooks.Properties.CustomApiResources", typeof(CustomApiResources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Microsoft.AspNet.WebHooks.Custom.Api.Properties.CustomApiResources", typeof(CustomApiResources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -111,6 +111,15 @@ namespace Microsoft.AspNet.WebHooks.Properties {
         internal static string RegistrationController_RegistrationFailure {
             get {
                 return ResourceManager.GetString("RegistrationController_RegistrationFailure", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &quot;The updated WebHook object has a different id than the one you are trying to update.&quot;.
+        /// </summary>
+        internal static string RegistrationController_RegistrationFailureOnId {
+            get {
+                return ResourceManager.GetString("RegistrationController_RegistrationFailureOnId", resourceCulture);
             }
         }
         

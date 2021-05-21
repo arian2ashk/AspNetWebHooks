@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Security.Principal;
 using System.Threading.Tasks;
-using Microsoft.AspNet.WebHooks.Properties;
+using Microsoft.AspNet.WebHooks.Custom.Properties;
 
 namespace Microsoft.AspNet.WebHooks
 {
@@ -31,26 +31,10 @@ namespace Microsoft.AspNet.WebHooks
         /// <param name="userManager">The current <see cref="IWebHookUser"/>.</param>
         public WebHookRegistrationsManager(IWebHookManager manager, IWebHookStore store, IWebHookFilterManager filterManager, IWebHookUser userManager)
         {
-            if (manager == null)
-            {
-                throw new ArgumentNullException(nameof(manager));
-            }
-            if (store == null)
-            {
-                throw new ArgumentNullException(nameof(store));
-            }
-            if (filterManager == null)
-            {
-                throw new ArgumentNullException(nameof(filterManager));
-            }
-            if (userManager == null)
-            {
-                throw new ArgumentNullException(nameof(userManager));
-            }
-            _manager = manager;
-            _store = store;
-            _filterManager = filterManager;
-            _userManager = userManager;
+            _manager = manager ?? throw new ArgumentNullException(nameof(manager));
+            _store = store ?? throw new ArgumentNullException(nameof(store));
+            _filterManager = filterManager ?? throw new ArgumentNullException(nameof(filterManager));
+            _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         }
 
         /// <inheritdoc />

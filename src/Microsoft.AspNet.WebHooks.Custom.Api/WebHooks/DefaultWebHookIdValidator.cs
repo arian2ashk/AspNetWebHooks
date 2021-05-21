@@ -2,8 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace Microsoft.AspNet.WebHooks
 {
@@ -14,7 +14,7 @@ namespace Microsoft.AspNet.WebHooks
     public class DefaultWebHookIdValidator : IWebHookIdValidator
     {
         /// <inheritdoc/>
-        public Task ValidateIdAsync(HttpRequestMessage request, WebHook webHook)
+        public Task ValidateIdAsync(HttpRequest request, WebHook webHook)
         {
             if (request == null)
             {

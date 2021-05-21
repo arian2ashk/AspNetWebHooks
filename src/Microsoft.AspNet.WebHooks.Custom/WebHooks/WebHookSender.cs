@@ -5,13 +5,18 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Linq;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
-using Microsoft.AspNet.WebHooks.Diagnostics;
-using Microsoft.AspNet.WebHooks.Properties;
+using Microsoft.AspNet.WebHooks.Custom.Extensions;
+using Microsoft.AspNet.WebHooks.Custom.Properties;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Microsoft.AspNet.WebHooks
 {
@@ -30,29 +35,22 @@ namespace Microsoft.AspNet.WebHooks
         private const string BodyPropertiesKey = "Properties";
         private const string BodyNotificationsKey = "Notifications";
 
-        private readonly ILogger _logger;
+        private readonly ILogger<WebHookSender> _logger;
 
         private bool _disposed;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WebHookSender"/> class.
         /// </summary>
-        protected WebHookSender(ILogger logger)
+        protected WebHookSender(ILogger<WebHookSender> logger)
         {
-            if (logger == null)
-            {
-                throw new ArgumentNullException(nameof(logger));
-            }
-            _logger = logger;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         /// <summary>
         /// Gets the current <see cref="ILogger"/> instance.
         /// </summary>
-        protected ILogger Logger
-        {
-            get { return _logger; }
-        }
+        protected ILogger Logger => _logger;
 
         /// <inheritdoc />
         public abstract Task SendWebHookWorkItemsAsync(IEnumerable<WebHookWorkItem> workItems);
@@ -110,7 +108,7 @@ namespace Microsoft.AspNet.WebHooks
                     if (!request.Content.Headers.TryAddWithoutValidation(kvp.Key, kvp.Value))
                     {
                         var message = string.Format(CultureInfo.CurrentCulture, CustomResources.Manager_InvalidHeader, kvp.Key, hook.Id);
-                        _logger.Error(message);
+                        _logger.LogError(message);
                     }
                 }
             }
@@ -123,7 +121,7 @@ namespace Microsoft.AspNet.WebHooks
         /// </summary>
         /// <param name="workItem">The <see cref="WebHookWorkItem"/> representing the data to be sent.</param>
         /// <returns>An initialized <see cref="JObject"/>.</returns>
-        protected virtual JObject CreateWebHookRequestBody(WebHookWorkItem workItem)
+        protected virtual string CreateWebHookRequestBody(WebHookWorkItem workItem)
         {
             if (workItem == null)
             {
@@ -147,7 +145,19 @@ namespace Microsoft.AspNet.WebHooks
             // Set notifications
             body[BodyNotificationsKey] = workItem.Notifications;
 
-            return JObject.FromObject(body);
+            object field = default;
+            if (workItem.Notifications?.FirstOrDefault()?.Count>1)
+            {
+                field = workItem.Notifications?.FirstOrDefault()?.ToArray()[1].Value;
+            }
+
+            switch (field)
+            {
+                case JsonElement _:
+                    return JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(body)).RootElement.Clone().ToString();
+                default:
+                   return JObject.FromObject(body).ToString();
+            }
         }
 
         /// <summary>
@@ -157,7 +167,7 @@ namespace Microsoft.AspNet.WebHooks
         /// <param name="workItem">The current <see cref="WebHookWorkItem"/>.</param>
         /// <param name="request">The request to add the signature to.</param>
         /// <param name="body">The body to sign and add to the request.</param>
-        protected virtual void SignWebHookRequest(WebHookWorkItem workItem, HttpRequestMessage request, JObject body)
+        protected virtual void SignWebHookRequest(WebHookWorkItem workItem, HttpRequestMessage request, string body)
         {
             if (workItem == null)
             {
@@ -172,15 +182,11 @@ namespace Microsoft.AspNet.WebHooks
             {
                 throw new ArgumentNullException(nameof(request));
             }
-            if (body == null)
-            {
-                throw new ArgumentNullException(nameof(body));
-            }
 
             var secret = Encoding.UTF8.GetBytes(workItem.WebHook.Secret);
             using (var hasher = new HMACSHA256(secret))
             {
-                var serializedBody = body.ToString();
+                var serializedBody = body;
                 request.Content = new StringContent(serializedBody, Encoding.UTF8, "application/json");
 
                 var data = Encoding.UTF8.GetBytes(serializedBody);

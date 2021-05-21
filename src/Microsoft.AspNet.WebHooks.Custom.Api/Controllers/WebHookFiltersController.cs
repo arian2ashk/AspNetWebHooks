@@ -1,10 +1,12 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Web.Http;
-using Microsoft.AspNet.WebHooks.Routes;
+using JetBrains.Annotations;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Microsoft.AspNet.WebHooks.Controllers
 {
@@ -14,20 +16,27 @@ namespace Microsoft.AspNet.WebHooks.Controllers
     /// indicating which filters can be used when registering a <see cref="WebHook"/>. 
     /// </summary>
     [Authorize]
-    [RoutePrefix("api/webhooks/filters")]
-    public class WebHookFiltersController : ApiController
+    [Route("api/[controller]")]
+    [ApiController]
+    public class WebHookFiltersController : ControllerBase
     {
+        [NotNull] private readonly IWebHookFilterManager _filterManager;
+
+        public WebHookFiltersController([NotNull] IWebHookFilterManager filterManager)
+        {
+            _filterManager = filterManager ?? throw new ArgumentNullException(nameof(filterManager));
+        }
+
         /// <summary>
         /// Gets all WebHook filters that a user can register with. The filters indicate which WebHook
         /// events that this WebHook will be notified for.
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the operation.</returns>
-        [Route("", Name = WebHookRouteNames.FiltersGetAction)]
-        public async Task<IEnumerable<WebHookFilter>> Get()
+        [HttpGet]
+        public async Task<IActionResult> Get()
         {
-            IWebHookFilterManager filterManager = Configuration.DependencyResolver.GetFilterManager();
-            IDictionary<string, WebHookFilter> filters = await filterManager.GetAllWebHookFiltersAsync();
-            return filters.Values;
+            IDictionary<string, WebHookFilter> filters = await _filterManager.GetAllWebHookFiltersAsync();
+            return Ok(filters.Values);
         }
     }
 }

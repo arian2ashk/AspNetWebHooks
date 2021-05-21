@@ -5,10 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
-using Microsoft.AspNet.WebHooks.Diagnostics;
+using Microsoft.Extensions.Logging;
 using Moq;
-using Newtonsoft.Json.Linq;
 using Xunit;
 
 namespace Microsoft.AspNet.WebHooks
@@ -16,16 +16,16 @@ namespace Microsoft.AspNet.WebHooks
     public class WebHookSenderTests : IDisposable
     {
         private const string TestUser = "TestUser";
-        private const string SerializedWebHook = "{\r\n  \"Id\": \"1234567890\",\r\n  \"Attempt\": 1,\r\n  \"Properties\": {\r\n    \"p1\": \"pv1\"\r\n  },\r\n  \"Notifications\": [\r\n    {\r\n      \"Action\": \"a1\",\r\n      \"d1\": \"dv1\"\r\n    },\r\n    {\r\n      \"Action\": \"a1\",\r\n      \"d2\": \"http://localhost/\"\r\n    }\r\n  ]\r\n}";
-        private const string WebHookSignature = "sha256=69941A3C522CE0B52B5F08BD23309D4356422FEFF99A3398062A7C015B9FD48D";
+        private const string SerializedWebHook = "{\r\n  \"Id\": \"1234567890\",\r\n  \"Attempt\": 1,\r\n  \"Properties\": {\r\n    \"p1\": \"pv1\"\r\n  },\r\n  \"Notifications\": [\r\n    {\r\n      \"Action\": \"a1\",\r\n      \"d1\": \"dv1\"\r\n    },\r\n    {\r\n      \"Action\": \"a1\",\r\n      \"d2\": \"http://localhost\"\r\n    }\r\n  ]\r\n}";
+        private const string WebHookSignature = "sha256=DCDEB62502988CDEDE464AF6A97566D61288C446CFC46F74F341E11173FF30A1";
 
-        private readonly Mock<ILogger> _loggerMock;
+        private readonly Mock<ILogger<WebHookSender>> _loggerMock;
 
         private WebHookSenderMock _sender;
 
         public WebHookSenderTests()
         {
-            _loggerMock = new Mock<ILogger>();
+            _loggerMock = new Mock<ILogger<WebHookSender>>();
         }
 
         [Fact]
@@ -62,7 +62,7 @@ namespace Microsoft.AspNet.WebHooks
             _sender = new WebHookSenderMock(_loggerMock.Object);
 
             // Act
-            JObject actual = _sender.CreateWebHookRequestBody(workItem);
+            var actual = _sender.CreateWebHookRequestBody(workItem);
 
             // Assert
             Assert.Equal(SerializedWebHook, actual.ToString());
@@ -74,7 +74,7 @@ namespace Microsoft.AspNet.WebHooks
             WebHookWorkItem workItem = CreateWorkItem();
             HttpRequestMessage request = new HttpRequestMessage();
             _sender = new WebHookSenderMock(_loggerMock.Object);
-            JObject body = _sender.CreateWebHookRequestBody(workItem);
+            var body = _sender.CreateWebHookRequestBody(workItem);
             workItem.WebHook = null;
 
             // Act
@@ -91,7 +91,7 @@ namespace Microsoft.AspNet.WebHooks
             WebHookWorkItem workItem = CreateWorkItem();
             HttpRequestMessage request = new HttpRequestMessage();
             _sender = new WebHookSenderMock(_loggerMock.Object);
-            JObject body = _sender.CreateWebHookRequestBody(workItem);
+            var body = _sender.CreateWebHookRequestBody(workItem);
 
             // Act
             _sender.SignWebHookRequest(workItem, request, body);
@@ -140,12 +140,12 @@ namespace Microsoft.AspNet.WebHooks
 
         private class WebHookSenderMock : WebHookSender
         {
-            public WebHookSenderMock(ILogger logger)
+            public WebHookSenderMock(ILogger<WebHookSender> logger)
                 : base(logger)
             {
             }
 
-            public new void SignWebHookRequest(WebHookWorkItem workItem, HttpRequestMessage request, JObject body)
+            public new void SignWebHookRequest(WebHookWorkItem workItem, HttpRequestMessage request, string body)
             {
                 base.SignWebHookRequest(workItem, request, body);
             }
@@ -155,7 +155,7 @@ namespace Microsoft.AspNet.WebHooks
                 return base.CreateWebHookRequest(workItem);
             }
 
-            public new JObject CreateWebHookRequestBody(WebHookWorkItem workItem)
+            public new string CreateWebHookRequestBody(WebHookWorkItem workItem)
             {
                 return base.CreateWebHookRequestBody(workItem);
             }

@@ -3,7 +3,7 @@
 
 using System;
 using System.Globalization;
-using Microsoft.AspNet.WebHooks.Properties;
+using Microsoft.AspNet.WebHooks.Common.Properties;
 
 namespace Microsoft.AspNet.WebHooks
 {

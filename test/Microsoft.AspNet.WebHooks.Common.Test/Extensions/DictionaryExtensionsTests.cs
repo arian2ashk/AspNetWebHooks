@@ -12,24 +12,19 @@ namespace System.Collections.Generic
 
         private readonly Dictionary<string, object> _strObjDict = new Dictionary<string, object>();
 
-        public static TheoryData<string, object> TestData
-        {
-            get
+        public static TheoryData<string, object> TestData =>
+            new TheoryData<string, object>
             {
-                return new TheoryData<string, object>
-                {
-                    { "key", "你好" },
-                    { "key", string.Empty },
-                    { "key", "value" },
-                    { "你好世界", 1 },
-                    { "你好世界", 1.23 },
-                    { "你好世界", Guid.NewGuid() },
-                    { string.Empty, new Uri("http://localhost") },
-                    { string.Empty, DayOfWeek.Friday },
-                    { string.Empty, new List<int>() },
-                };
-            }
-        }
+                { "key", "你好" },
+                { "key", string.Empty },
+                { "key", "value" },
+                { "你好世界", 1 },
+                { "你好世界", 1.23 },
+                { "你好世界", Guid.NewGuid() },
+                { string.Empty, new Uri("http://localhost") },
+                { string.Empty, DayOfWeek.Friday },
+                { string.Empty, new List<int>() },
+            };
 
         [Theory]
         [MemberData(nameof(TestData))]

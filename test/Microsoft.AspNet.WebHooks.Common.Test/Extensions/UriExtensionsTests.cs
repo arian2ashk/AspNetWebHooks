@@ -7,43 +7,33 @@ namespace System
 {
     public class UriExtensionsTests
     {
-        public static TheoryData<string, bool> HttpData
-        {
-            get
+        public static TheoryData<string, bool> HttpData =>
+            new TheoryData<string, bool>
             {
-                return new TheoryData<string, bool>
-                {
-                    { "relative", false },
-                    { "/some/path", false },
-                    { "https://localhost", false },
-                    { "ftp://localhost", false },
-                    { "ftps://localhost", false },
-                    { "telnet://localhost", false },
-                    { "http://localhost", true },
-                    { "HTTP://localhost", true },
-                    { "Http://localhost", true },
-                };
-            }
-        }
+                { "relative", false },
+                { "/some/path", false },
+                { "https://localhost", false },
+                { "ftp://localhost", false },
+                { "ftps://localhost", false },
+                { "telnet://localhost", false },
+                { "http://localhost", true },
+                { "HTTP://localhost", true },
+                { "Http://localhost", true },
+            };
 
-        public static TheoryData<string, bool> HttpsData
-        {
-            get
+        public static TheoryData<string, bool> HttpsData =>
+            new TheoryData<string, bool>
             {
-                return new TheoryData<string, bool>
-                {
-                    { "relative", false },
-                    { "/some/path", false },
-                    { "http://localhost", false },
-                    { "ftp://localhost", false },
-                    { "ftps://localhost", false },
-                    { "telnet://localhost", false },
-                    { "https://localhost", true },
-                    { "HTTPS://localhost", true },
-                    { "HttpS://localhost", true },
-                };
-            }
-        }
+                { "relative", false },
+                { "/some/path", false },
+                { "http://localhost", false },
+                { "ftp://localhost", false },
+                { "ftps://localhost", false },
+                { "telnet://localhost", false },
+                { "https://localhost", true },
+                { "HTTPS://localhost", true },
+                { "HttpS://localhost", true },
+            };
 
         [Fact]
         public void IsHttp_HandlesNull()

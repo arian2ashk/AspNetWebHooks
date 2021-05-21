@@ -3,53 +3,31 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
-using System.Web.Http;
-using System.Web.Http.Controllers;
-using System.Web.Http.Dependencies;
-using Moq;
+using Microsoft.TestUtilities;
 using Xunit;
 
 namespace Microsoft.AspNet.WebHooks.Controllers
 {
     public class WebHookFiltersControllerTests
     {
-        private HttpConfiguration _config;
-        private WebHookFiltersController _controller;
-        private IWebHookFilterManager _filterManager;
-        private Mock<IDependencyResolver> _resolverMock;
+        private readonly WebHookFiltersController _controller;
 
         public WebHookFiltersControllerTests()
         {
             WildcardWebHookFilterProvider provider = new WildcardWebHookFilterProvider();
-            _filterManager = new WebHookFilterManager(new[] { provider });
-
-            _resolverMock = new Mock<IDependencyResolver>();
-            _resolverMock.Setup(r => r.GetService(typeof(IWebHookFilterManager)))
-                .Returns(_filterManager)
-                .Verifiable();
-
-            _config = new HttpConfiguration();
-            _config.DependencyResolver = _resolverMock.Object;
-
-            HttpControllerContext controllerContext = new HttpControllerContext()
-            {
-                Configuration = _config,
-                Request = new HttpRequestMessage(),
-            };
-            _controller = new WebHookFiltersController();
-            _controller.ControllerContext = controllerContext;
+            IWebHookFilterManager filterManager = new WebHookFilterManager(new[] { provider });
+            _controller = new WebHookFiltersController(filterManager);
         }
 
         [Fact]
         public async Task Get_Returns_ExpectedFilters()
         {
             // Act
-            IEnumerable<WebHookFilter> actual = await _controller.Get();
-
+            var actual = (await _controller.Get()).GetValue<IEnumerable<WebHookFilter>>();
+            
             // Assert
-            Assert.Equal(1, actual.Count());
+            Assert.Single(actual);
             Assert.Equal(WildcardWebHookFilterProvider.Name, actual.Single().Name);
         }
     }

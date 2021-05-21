@@ -10,7 +10,8 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.AspNet.WebHooks.Diagnostics;
+using System.Web;
+using Microsoft.Extensions.Logging;
 using Microsoft.TestUtilities.Mocks;
 using Moq;
 using Xunit;
@@ -25,7 +26,7 @@ namespace Microsoft.AspNet.WebHooks
         private readonly Mock<IWebHookStore> _storeMock;
         private readonly Mock<IWebHookSender> _senderMock;
         private readonly HttpMessageHandlerMock _handlerMock;
-        private readonly Mock<ILogger> _loggerMock;
+        private readonly Mock<ILogger<WebHookManager>> _loggerMock;
         private readonly HttpResponseMessage _response;
 
         private WebHookManager _manager;
@@ -39,42 +40,32 @@ namespace Microsoft.AspNet.WebHooks
                 .ReturnsAsync(new Collection<WebHook> { CreateWebHook() })
                 .Verifiable();
             _senderMock = new Mock<IWebHookSender>();
-            _loggerMock = new Mock<ILogger>();
+            _loggerMock = new Mock<ILogger<WebHookManager>>();
             _response = new HttpResponseMessage();
         }
 
-        public static TheoryData<string> WebHookSecretData
-        {
-            get
+        public static TheoryData<string> WebHookSecretData =>
+            new TheoryData<string>
             {
-                return new TheoryData<string>
-                {
-                    null,
-                    string.Empty,
-                    " ",
-                    "\r\n",
-                    new string('a', 31),
-                    new string('你', 31),
-                    new string('a', 65),
-                    new string('你', 65),
-                };
-            }
-        }
+                null,
+                string.Empty,
+                " ",
+                "\r\n",
+                new string('a', 31),
+                new string('你', 31),
+                new string('a', 65),
+                new string('你', 65),
+            };
 
-        public static TheoryData<string> WebHookUriData
-        {
-            get
+        public static TheoryData<string> WebHookUriData =>
+            new TheoryData<string>
             {
-                return new TheoryData<string>
-                {
-                    null,
-                    "ftp://localhost",
-                    "telnet://localhost",
-                    "htp://localhost",
-                    "invalid://localhost",
-                };
-            }
-        }
+                null,
+                "ftp://localhost",
+                "telnet://localhost",
+                "htp://localhost",
+                "invalid://localhost",
+            };
 
         public static TheoryData<IEnumerable<WebHook>, NotificationDictionary> FilterSingleNotificationData
         {
@@ -117,24 +108,19 @@ namespace Microsoft.AspNet.WebHooks
             }
         }
 
-        public static TheoryData<string> WebHookNoEchoData
-        {
-            get
+        public static TheoryData<string> WebHookNoEchoData =>
+            new TheoryData<string>
             {
-                return new TheoryData<string>
-                {
-                    "noecho",
-                    "noecho=",
-                    "noecho=value",
-                    "NoEcho",
-                    "NoEcho=",
-                    "NoEcho=value",
-                    "NOECHO",
-                    "NOECHO=",
-                    "NOECHO=value",
-                };
-            }
-        }
+                "noecho",
+                "noecho=",
+                "noecho=value",
+                "NoEcho",
+                "NoEcho=",
+                "NoEcho=value",
+                "NOECHO",
+                "NOECHO=",
+                "NOECHO=value",
+            };
 
         [Theory]
         [MemberData(nameof(WebHookSecretData))]
@@ -260,7 +246,7 @@ namespace Microsoft.AspNet.WebHooks
             _manager = new WebHookManager(_storeMock.Object, _senderMock.Object, _loggerMock.Object, _httpClient);
             _handlerMock.Handler = (req, counter) =>
             {
-                NameValueCollection query = req.RequestUri.ParseQueryString();
+                NameValueCollection query = HttpUtility.ParseQueryString(req.RequestUri.Query);
                 _response.Content = new StringContent(query["echo"]);
                 return Task.FromResult(_response);
             };

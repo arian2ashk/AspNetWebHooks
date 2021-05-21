@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using Microsoft.TestUtilities;
 using Newtonsoft.Json;
 using Xunit;
@@ -28,17 +27,11 @@ namespace Microsoft.AspNet.WebHooks
             Invalid
         }
 
-        public static TheoryData<Uri, ValidationOutcome> WebHookUriData
-        {
-            get
+        public static TheoryData<Uri, ValidationOutcome> WebHookUriData =>
+            new TheoryData<Uri, ValidationOutcome>
             {
-                return new TheoryData<Uri, ValidationOutcome>
-                {
-                    { null, ValidationOutcome.Required },
-                    { new Uri("http://localhost"), ValidationOutcome.Valid },
-                };
-            }
-        }
+                { new Uri("http://localhost"), ValidationOutcome.Valid },
+            };
 
         [Fact]
         public void Id_Roundtrips()
@@ -76,12 +69,6 @@ namespace Microsoft.AspNet.WebHooks
             {
                 case ValidationOutcome.Valid:
                     Assert.True(actual);
-                    break;
-
-                case ValidationOutcome.Required:
-                    Assert.False(actual);
-                    Assert.Equal("The WebHookUri field is required.", validationResults.Single().ErrorMessage);
-                    Assert.Equal("WebHookUri", validationResults.Single().MemberNames.Single());
                     break;
 
                 default:

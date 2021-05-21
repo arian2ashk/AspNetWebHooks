@@ -3,7 +3,7 @@
 
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
-using Microsoft.AspNet.WebHooks.Properties;
+using Microsoft.AspNet.WebHooks.Custom.Properties;
 
 namespace Microsoft.AspNet.WebHooks
 {
@@ -22,10 +22,7 @@ namespace Microsoft.AspNet.WebHooks
         /// <summary>
         /// Gets the name of the <see cref="WebHookFilter"/> registered by this <see cref="IWebHookFilterProvider"/>.
         /// </summary>
-        public static string Name
-        {
-            get { return WildcardName; }
-        }
+        public static string Name => WildcardName;
 
         /// <inheritdoc />
         public Task<Collection<WebHookFilter>> GetFiltersAsync()

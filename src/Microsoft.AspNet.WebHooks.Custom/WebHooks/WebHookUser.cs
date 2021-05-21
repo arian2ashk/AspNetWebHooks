@@ -5,7 +5,7 @@ using System;
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading.Tasks;
-using Microsoft.AspNet.WebHooks.Properties;
+using Microsoft.AspNet.WebHooks.Custom.Properties;
 
 namespace Microsoft.AspNet.WebHooks
 {
@@ -25,18 +25,8 @@ namespace Microsoft.AspNet.WebHooks
         /// </summary>
         public static string IdClaimsType
         {
-            get
-            {
-                return _claimsType;
-            }
-            set
-            {
-                if (value == null)
-                {
-                    throw new ArgumentNullException(nameof(value));
-                }
-                _claimsType = value;
-            }
+            get => _claimsType;
+            set => _claimsType = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         /// <inheritdoc />

@@ -25,12 +25,7 @@ namespace Microsoft.AspNet.WebHooks
         /// </summary>
         public WebHookFilterManager(IEnumerable<IWebHookFilterProvider> providers)
         {
-            if (providers == null)
-            {
-                throw new ArgumentNullException(nameof(providers));
-            }
-
-            _providers = providers;
+            _providers = providers ?? throw new ArgumentNullException(nameof(providers));
         }
 
         /// <inheritdoc />

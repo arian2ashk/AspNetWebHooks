@@ -8,7 +8,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
-using Microsoft.AspNet.WebHooks.Diagnostics;
+using Microsoft.Extensions.Logging;
 using Microsoft.TestUtilities.Mocks;
 using Moq;
 using Xunit;
@@ -20,7 +20,7 @@ namespace Microsoft.AspNet.WebHooks
         private readonly HttpClient _httpClient;
         private readonly ExecutionDataflowBlockOptions _options;
         private readonly HttpMessageHandlerMock _handlerMock;
-        private readonly Mock<ILogger> _loggerMock;
+        private readonly Mock<ILogger<DataflowWebHookSender>> _loggerMock;
 
         private DataflowWebHookSender _sender;
 
@@ -29,7 +29,7 @@ namespace Microsoft.AspNet.WebHooks
             _handlerMock = new HttpMessageHandlerMock();
             _httpClient = new HttpClient(_handlerMock);
             _options = new ExecutionDataflowBlockOptions();
-            _loggerMock = new Mock<ILogger>();
+            _loggerMock = new Mock<ILogger<DataflowWebHookSender>>();
         }
 
         public enum SendResult
@@ -196,7 +196,7 @@ namespace Microsoft.AspNet.WebHooks
             private readonly Action<WebHookWorkItem> _onRetry, _onSuccess, _onGone, _onFailure;
 
             public TestDataflowWebHookSender(
-                ILogger logger,
+                ILogger<DataflowWebHookSender> logger,
                 IEnumerable<TimeSpan> retryDelays,
                 ExecutionDataflowBlockOptions options,
                 HttpClient httpClient,

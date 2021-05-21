@@ -7,7 +7,7 @@ using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Runtime.Serialization;
-using Microsoft.AspNet.WebHooks.Properties;
+using Microsoft.AspNet.WebHooks.Custom.Properties;
 
 namespace Microsoft.AspNet.WebHooks
 {
@@ -78,10 +78,7 @@ namespace Microsoft.AspNet.WebHooks
         /// </summary>
         public string Action
         {
-            get
-            {
-                return this.GetValueOrDefault<string>(ActionKey);
-            }
+            get => this.GetValueOrDefault<string>(ActionKey);
             set
             {
                 if (value == null)
@@ -112,10 +109,7 @@ namespace Microsoft.AspNet.WebHooks
                 }
             }
 
-            set
-            {
-                base[key] = value;
-            }
+            set => base[key] = value;
         }
     }
 }

@@ -21,37 +21,27 @@ namespace Microsoft.AspNet.WebHooks
             _notification = new NotificationDictionary(TestAction, data: null);
         }
 
-        public static TheoryData<string, object> CustomProperties
-        {
-            get
+        public static TheoryData<string, object> CustomProperties =>
+            new TheoryData<string, object>
             {
-                return new TheoryData<string, object>
-                {
-                    { "key", "你好" },
-                    { "key", string.Empty },
-                    { "key", "value" },
-                    { "你好世界", 1 },
-                    { "你好世界", 1.23 },
-                    { "你好世界", Guid.NewGuid() },
-                    { string.Empty, new Uri("http://localhost") },
-                    { string.Empty, DayOfWeek.Friday },
-                    { string.Empty, new List<int>() },
-                };
-            }
-        }
+                { "key", "你好" },
+                { "key", string.Empty },
+                { "key", "value" },
+                { "你好世界", 1 },
+                { "你好世界", 1.23 },
+                { "你好世界", Guid.NewGuid() },
+                { string.Empty, new Uri("http://localhost") },
+                { string.Empty, DayOfWeek.Friday },
+                { string.Empty, new List<int>() },
+            };
 
-        public static TheoryData<string> UnknownKeys
-        {
-            get
+        public static TheoryData<string> UnknownKeys =>
+            new TheoryData<string>
             {
-                return new TheoryData<string>
-                {
-                    "unknown",
-                    "你好世界",
-                    string.Empty,
-                };
-            }
-        }
+                "unknown",
+                "你好世界",
+                string.Empty,
+            };
 
         [Fact]
         public void Action_Roundtrips()
@@ -130,7 +120,7 @@ namespace Microsoft.AspNet.WebHooks
             IDictionary<string, object> dictionary = (IDictionary<string, object>)_notification;
             KeyNotFoundException ex = Assert.Throws<KeyNotFoundException>(() => dictionary[key]);
 
-            Assert.Contains("The given key was not present in the dictionary.", ex.Message);
+            Assert.Contains($"The given key '{key}' was not present in the dictionary.", ex.Message);
         }
     }
 }

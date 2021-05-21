@@ -20,17 +20,8 @@ namespace Microsoft.AspNet.WebHooks
         /// </summary>
         public WebHookWorkItem(WebHook webHook, IEnumerable<NotificationDictionary> notifications)
         {
-            if (webHook == null)
-            {
-                throw new ArgumentNullException(nameof(webHook));
-            }
-            if (notifications == null)
-            {
-                throw new ArgumentNullException(nameof(notifications));
-            }
-
-            WebHook = webHook;
-            _notifications = notifications;
+            WebHook = webHook ?? throw new ArgumentNullException(nameof(webHook));
+            _notifications = notifications ?? throw new ArgumentNullException(nameof(notifications));
         }
 
         /// <summary>
@@ -46,10 +37,7 @@ namespace Microsoft.AspNet.WebHooks
                 }
                 return _id;
             }
-            set
-            {
-                _id = value;
-            }
+            set => _id = value;
         }
 
         /// <summary>
@@ -65,13 +53,7 @@ namespace Microsoft.AspNet.WebHooks
         /// <summary>
         /// Gets the set of <see cref="NotificationDictionary"/> that caused the WebHook to be fired.
         /// </summary>
-        public IEnumerable<NotificationDictionary> Notifications
-        {
-            get
-            {
-                return _notifications;
-            }
-        }
+        public IEnumerable<NotificationDictionary> Notifications => _notifications;
 
         /// <summary>
         /// Gets the set of additional properties associated with this <see cref="WebHookWorkItem"/> instance.

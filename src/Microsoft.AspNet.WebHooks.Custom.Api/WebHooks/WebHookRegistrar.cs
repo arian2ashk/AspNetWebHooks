@@ -1,8 +1,8 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace Microsoft.AspNet.WebHooks
 {
@@ -23,15 +23,9 @@ namespace Microsoft.AspNet.WebHooks
         /// or prefixed by <see cref="WebHookRegistrar.PrivateFilterPrefix"/> in order to remain hidden from the user. 
         /// Failure to do so will lead to WebHook registration updates being rejected due to unknown filters.
         /// </summary>
-        public static string PrivateFilterPrefix
-        {
-            get
-            {
-                return Prefix;
-            }
-        }
+        public static string PrivateFilterPrefix => Prefix;
 
         /// <inheritdoc />
-        public abstract Task RegisterAsync(HttpRequestMessage request, WebHook webHook);
+        public abstract Task RegisterAsync(HttpRequest request, WebHook webHook);
     }
 }

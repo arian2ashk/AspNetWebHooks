@@ -11,58 +11,43 @@ namespace Microsoft.AspNet.WebHooks.Config
     {
         private readonly SettingsDictionary _settings = new SettingsDictionary();
 
-        public static TheoryData<string, string> CustomSettings
-        {
-            get
+        public static TheoryData<string, string> CustomSettings =>
+            new TheoryData<string, string>
             {
-                return new TheoryData<string, string>
-                {
-                    { "key", null },
-                    { "key", string.Empty },
-                    { "key", "value" },
-                    { "你好世界", null },
-                    { "你好世界", string.Empty },
-                    { "你好世界", "你好" },
-                    { string.Empty, null },
-                    { string.Empty, string.Empty },
-                    { string.Empty, "你好" },
-                };
-            }
-        }
+                { "key", null },
+                { "key", string.Empty },
+                { "key", "value" },
+                { "你好世界", null },
+                { "你好世界", string.Empty },
+                { "你好世界", "你好" },
+                { string.Empty, null },
+                { string.Empty, string.Empty },
+                { string.Empty, "你好" },
+            };
 
-        public static TheoryData<string> UnknownKeys
-        {
-            get
+        public static TheoryData<string> UnknownKeys =>
+            new TheoryData<string>
             {
-                return new TheoryData<string>
-                {
-                    "key",
-                    "你好世界",
-                    string.Empty,
-                    "unknown"
-                };
-            }
-        }
+                "key",
+                "你好世界",
+                string.Empty,
+                "unknown"
+            };
 
-        public static TheoryData<string, string, bool> IsTrueData
-        {
-            get
+        public static TheoryData<string, string, bool> IsTrueData =>
+            new TheoryData<string, string, bool>
             {
-                return new TheoryData<string, string, bool>
-                {
-                    { "key", null, false },
-                    { "key", string.Empty, false },
-                    { "key", "你好世界", false },
-                    { "key", "false", false },
-                    { "key", "0", false },
-                    { "key", "-1", false },
-                    { "你好世界", "true", true },
-                    { "你好世界", "True", true },
-                    { "你好世界", "TRUE", true },
-                    { "你好世界", " True ", true },
-                };
-            }
-        }
+                { "key", null, false },
+                { "key", string.Empty, false },
+                { "key", "你好世界", false },
+                { "key", "false", false },
+                { "key", "0", false },
+                { "key", "-1", false },
+                { "你好世界", "true", true },
+                { "你好世界", "True", true },
+                { "你好世界", "TRUE", true },
+                { "你好世界", " True ", true },
+            };
 
         [Theory]
         [MemberData(nameof(CustomSettings))]
@@ -108,7 +93,7 @@ namespace Microsoft.AspNet.WebHooks.Config
             IDictionary<string, string> dictionary = (IDictionary<string, string>)_settings;
             KeyNotFoundException ex = Assert.Throws<KeyNotFoundException>(() => dictionary[key]);
 
-            Assert.Contains("The given key was not present in the dictionary.", ex.Message);
+            Assert.Contains($"The given key '{key}' was not present in the dictionary.", ex.Message);
         }
 
         [Theory]

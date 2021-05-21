@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Runtime.Serialization;
-using Microsoft.AspNet.WebHooks.Properties;
+using Microsoft.AspNet.WebHooks.Common.Properties;
 
 namespace Microsoft.AspNet.WebHooks.Config
 {
@@ -40,13 +40,7 @@ namespace Microsoft.AspNet.WebHooks.Config
         /// <summary>
         /// Gets the set of connection strings.
         /// </summary>
-        public IDictionary<string, ConnectionSettings> Connections
-        {
-            get
-            {
-                return _connections;
-            }
-        }
+        public IDictionary<string, ConnectionSettings> Connections => _connections;
 
         /// <summary>
         /// Gets or sets the value associated with the specified key.
@@ -68,10 +62,7 @@ namespace Microsoft.AspNet.WebHooks.Config
                 }
             }
 
-            set
-            {
-                base[key] = value;
-            }
+            set => base[key] = value;
         }
 
         /// <summary>

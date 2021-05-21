@@ -5,15 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using System.Web.Http;
-using System.Web.Http.Controllers;
-using System.Web.Http.Description;
-using Microsoft.AspNet.WebHooks.Filters;
-using Microsoft.AspNet.WebHooks.Properties;
-using Microsoft.AspNet.WebHooks.Routes;
+using Microsoft.AspNet.WebHooks.Custom.Api.Properties;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.AspNet.WebHooks.Controllers
 {
@@ -22,28 +19,39 @@ namespace Microsoft.AspNet.WebHooks.Controllers
     /// through a REST-style interface.
     /// </summary>
     [Authorize]
-    [RoutePrefix("api/webhooks/registrations")]
-    public class WebHookRegistrationsController : ApiController
+    [Route("api/[controller]")]
+    [ApiController]
+    public class WebHookRegistrationsController : ControllerBase
     {
-        private IWebHookRegistrationsManager _registrationsManager;
+        private readonly IWebHookRegistrationsManager _registrationsManager;
+        private readonly IWebHookIdValidator _webHookIdValidator;
+        private readonly IEnumerable<IWebHookRegistrar> _webHookRegistrars;
+        private readonly ILogger<WebHookRegistrationsController> _logger;
+
+        public WebHookRegistrationsController(IWebHookRegistrationsManager registrationsManager, IWebHookIdValidator webHookIdValidator, IEnumerable<IWebHookRegistrar> webHookRegistrars, ILogger<WebHookRegistrationsController> logger)
+        {
+            _registrationsManager = registrationsManager ?? throw new ArgumentNullException(nameof(registrationsManager));
+            _logger = logger;
+            _webHookIdValidator = webHookIdValidator;
+            _webHookRegistrars = webHookRegistrars;
+        }
 
         /// <summary>
         /// Gets all registered WebHooks for a given user.
         /// </summary>
         /// <returns>A collection containing the registered <see cref="WebHook"/> instances for a given user.</returns>
-        [Route("")]
-        public async Task<IEnumerable<WebHook>> Get()
+        [HttpGet]
+        public async Task<IActionResult> Get()
         {
             try
             {
                 var webHooks = await _registrationsManager.GetWebHooksAsync(User, RemovePrivateFilters);
-                return webHooks;
+                return Ok(webHooks);
             }
             catch (Exception ex)
             {
-                Configuration.DependencyResolver.GetLogger().Error(ex.Message, ex);
-                var error = Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message, ex);
-                throw new HttpResponseException(error);
+                _logger.LogError(ex, ex.Message);
+                return Problem(ex.Message, nameof(WebHookRegistrationsController));
             }
         }
 
@@ -51,10 +59,9 @@ namespace Microsoft.AspNet.WebHooks.Controllers
         /// Looks up a registered WebHook with the given <paramref name="id"/> for a given user.
         /// </summary>
         /// <returns>The registered <see cref="WebHook"/> instance for a given user.</returns>
-        [Route("{id}", Name = WebHookRouteNames.RegistrationLookupAction)]
         [HttpGet]
-        [ResponseType(typeof(WebHook))]
-        public async Task<IHttpActionResult> Lookup(string id)
+        [Route("{id}")]
+        public async Task<IActionResult> Lookup(string id)
         {
             try
             {
@@ -67,9 +74,8 @@ namespace Microsoft.AspNet.WebHooks.Controllers
             }
             catch (Exception ex)
             {
-                Configuration.DependencyResolver.GetLogger().Error(ex.Message, ex);
-                var error = Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message, ex);
-                throw new HttpResponseException(error);
+                _logger.LogError(ex, ex.Message);
+                return Problem(ex.Message, nameof(WebHookRegistrationsController));
             }
         }
 
@@ -77,10 +83,8 @@ namespace Microsoft.AspNet.WebHooks.Controllers
         /// Registers a new WebHook for a given user.
         /// </summary>
         /// <param name="webHook">The <see cref="WebHook"/> to create.</param>
-        [Route("")]
-        [ValidateModel]
-        [ResponseType(typeof(WebHook))]
-        public async Task<IHttpActionResult> Post(WebHook webHook)
+        [HttpPost]
+        public async Task<IActionResult> Post(WebHook webHook)
         {
             if (webHook == null)
             {
@@ -90,8 +94,7 @@ namespace Microsoft.AspNet.WebHooks.Controllers
             try
             {
                 // Validate the provided WebHook ID (or force one to be created on server side)
-                var idValidator = Configuration.DependencyResolver.GetIdValidator();
-                await idValidator.ValidateIdAsync(Request, webHook);
+                await _webHookIdValidator.ValidateIdAsync(Request, webHook);
 
                 // Validate other parts of WebHook
                 await _registrationsManager.VerifySecretAsync(webHook);
@@ -101,9 +104,12 @@ namespace Microsoft.AspNet.WebHooks.Controllers
             catch (Exception ex)
             {
                 var message = string.Format(CultureInfo.CurrentCulture, CustomApiResources.RegistrationController_RegistrationFailure, ex.Message);
-                Configuration.DependencyResolver.GetLogger().Info(message);
-                var error = Request.CreateErrorResponse(HttpStatusCode.BadRequest, message, ex);
-                return ResponseMessage(error);
+                _logger.LogError(ex, message);
+                return BadRequest(new
+                {
+                    detail = message,
+                    instance = nameof(WebHookRegistrationsController)
+                });
             }
 
             try
@@ -112,16 +118,15 @@ namespace Microsoft.AspNet.WebHooks.Controllers
                 var result = await _registrationsManager.AddWebHookAsync(User, webHook, AddPrivateFilters);
                 if (result == StoreResult.Success)
                 {
-                    return CreatedAtRoute(WebHookRouteNames.RegistrationLookupAction, new { id = webHook.Id }, webHook);
+                    return CreatedAtRoute(new { id = webHook.Id }, webHook);
                 }
-                return CreateHttpResult(result);
+                return BadRequest(result);
             }
             catch (Exception ex)
             {
                 var message = string.Format(CultureInfo.CurrentCulture, CustomApiResources.RegistrationController_RegistrationFailure, ex.Message);
-                Configuration.DependencyResolver.GetLogger().Error(message, ex);
-                var error = Request.CreateErrorResponse(HttpStatusCode.InternalServerError, message, ex);
-                return ResponseMessage(error);
+                _logger.LogError(ex, message);
+                return Problem(ex.Message, nameof(WebHookRegistrationsController));
             }
         }
 
@@ -131,8 +136,8 @@ namespace Microsoft.AspNet.WebHooks.Controllers
         /// <param name="id">The WebHook ID.</param>
         /// <param name="webHook">The new <see cref="WebHook"/> to use.</param>
         [Route("{id}")]
-        [ValidateModel]
-        public async Task<IHttpActionResult> Put(string id, WebHook webHook)
+        [HttpPost]
+        public async Task<IActionResult> Put(string id, WebHook webHook)
         {
             if (webHook == null)
             {
@@ -140,7 +145,8 @@ namespace Microsoft.AspNet.WebHooks.Controllers
             }
             if (!string.Equals(id, webHook.Id, StringComparison.OrdinalIgnoreCase))
             {
-                return BadRequest();
+                var message = string.Format(CultureInfo.CurrentCulture, CustomApiResources.RegistrationController_RegistrationFailureOnId);
+                return BadRequest(message);
             }
 
             try
@@ -153,23 +159,29 @@ namespace Microsoft.AspNet.WebHooks.Controllers
             catch (Exception ex)
             {
                 var message = string.Format(CultureInfo.CurrentCulture, CustomApiResources.RegistrationController_RegistrationFailure, ex.Message);
-                Configuration.DependencyResolver.GetLogger().Info(message);
-                var error = Request.CreateErrorResponse(HttpStatusCode.BadRequest, message, ex);
-                return ResponseMessage(error);
+                _logger.LogError(ex, message);
+                return BadRequest(new
+                {
+                    detail = message,
+                    instance = nameof(WebHookRegistrationsController)
+                });
             }
 
             try
             {
                 // Update WebHook for this user
                 var result = await _registrationsManager.UpdateWebHookAsync(User, webHook, AddPrivateFilters);
-                return CreateHttpResult(result);
+                if (result == StoreResult.Success)
+                {
+                    return CreatedAtRoute(new { id = webHook.Id }, webHook);
+                }
+                return BadRequest(result);
             }
             catch (Exception ex)
             {
                 var message = string.Format(CultureInfo.CurrentCulture, CustomApiResources.RegistrationController_UpdateFailure, ex.Message);
-                Configuration.DependencyResolver.GetLogger().Error(message, ex);
-                var error = Request.CreateErrorResponse(HttpStatusCode.InternalServerError, message, ex);
-                return ResponseMessage(error);
+                _logger.LogError(ex, message);
+                return Problem(ex.Message, nameof(WebHookRegistrationsController));
             }
         }
 
@@ -178,27 +190,32 @@ namespace Microsoft.AspNet.WebHooks.Controllers
         /// </summary>
         /// <param name="id">The WebHook ID.</param>
         [Route("{id}")]
-        public async Task<IHttpActionResult> Delete(string id)
+        [HttpDelete]
+        public async Task<IActionResult> Delete(string id)
         {
             try
             {
                 var result = await _registrationsManager.DeleteWebHookAsync(User, id);
-                return CreateHttpResult(result);
+                if (result == StoreResult.Success)
+                {
+                    return Ok();
+                }
+                return BadRequest(result);
             }
             catch (Exception ex)
             {
                 var message = string.Format(CultureInfo.CurrentCulture, CustomApiResources.RegistrationController_DeleteFailure, ex.Message);
-                Configuration.DependencyResolver.GetLogger().Error(message, ex);
-                var error = Request.CreateErrorResponse(HttpStatusCode.InternalServerError, message, ex);
-                return ResponseMessage(error);
+                _logger.LogError(ex, message);
+                return Problem(ex.Message, nameof(WebHookRegistrationsController));
             }
         }
 
         /// <summary>
         /// Deletes all existing WebHook registrations.
         /// </summary>
-        [Route("")]
-        public async Task<IHttpActionResult> DeleteAll()
+        [Route("all")]
+        [HttpDelete]
+        public async Task<IActionResult> DeleteAll()
         {
             try
             {
@@ -208,18 +225,9 @@ namespace Microsoft.AspNet.WebHooks.Controllers
             catch (Exception ex)
             {
                 var message = string.Format(CultureInfo.CurrentCulture, CustomApiResources.RegistrationController_DeleteAllFailure, ex.Message);
-                Configuration.DependencyResolver.GetLogger().Error(message, ex);
-                var error = Request.CreateErrorResponse(HttpStatusCode.InternalServerError, message, ex);
-                return ResponseMessage(error);
+                _logger.LogError(ex, message);
+                return Problem(ex.Message, nameof(WebHookRegistrationsController));
             }
-        }
-
-        /// <inheritdoc />
-        protected override void Initialize(HttpControllerContext controllerContext)
-        {
-            base.Initialize(controllerContext);
-
-            _registrationsManager = Configuration.DependencyResolver.GetRegistrationsManager();
         }
 
         /// <summary>
@@ -247,52 +255,18 @@ namespace Microsoft.AspNet.WebHooks.Controllers
         /// </summary>
         protected virtual async Task AddPrivateFilters(string user, WebHook webHook)
         {
-            var registrars = Configuration.DependencyResolver.GetRegistrars();
-            foreach (var registrar in registrars)
+            foreach (var registrar in _webHookRegistrars)
             {
                 try
                 {
                     await registrar.RegisterAsync(Request, webHook);
                 }
-                catch (HttpResponseException rex)
-                {
-                    var message = string.Format(CultureInfo.CurrentCulture, CustomApiResources.RegistrationController_RegistrarStatusCode, registrar.GetType().Name, typeof(IWebHookRegistrar).Name, rex.Response.StatusCode);
-                    Configuration.DependencyResolver.GetLogger().Info(message);
-                    throw;
-                }
                 catch (Exception ex)
                 {
-                    var message = string.Format(CultureInfo.CurrentCulture, CustomApiResources.RegistrationController_RegistrarException, registrar.GetType().Name, typeof(IWebHookRegistrar).Name, ex.Message);
-                    Configuration.DependencyResolver.GetLogger().Error(message, ex);
-                    var response = Request.CreateErrorResponse(HttpStatusCode.BadRequest, message);
-                    throw new HttpResponseException(response);
+                    var message = string.Format(CultureInfo.CurrentCulture, CustomApiResources.RegistrationController_RegistrarException, registrar.GetType().Name, nameof(IWebHookRegistrar), ex.Message);
+                    _logger.LogError(ex, message);
+                    throw new Exception(message);
                 }
-            }
-        }
-
-        /// <summary>
-        /// Creates an <see cref="IHttpActionResult"/> based on the provided <paramref name="result"/>.
-        /// </summary>
-        /// <param name="result">The result to use when creating the <see cref="IHttpActionResult"/>.</param>
-        /// <returns>An initialized <see cref="IHttpActionResult"/>.</returns>
-        private IHttpActionResult CreateHttpResult(StoreResult result)
-        {
-            switch (result)
-            {
-                case StoreResult.Success:
-                    return Ok();
-
-                case StoreResult.Conflict:
-                    return Conflict();
-
-                case StoreResult.NotFound:
-                    return NotFound();
-
-                case StoreResult.OperationError:
-                    return BadRequest();
-
-                default:
-                    return InternalServerError();
             }
         }
     }

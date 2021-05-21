@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
 namespace Microsoft.AspNet.WebHooks
 {
@@ -39,20 +38,13 @@ namespace Microsoft.AspNet.WebHooks
         /// </summary>
         public string Id
         {
-            get
-            {
-                return id;
-            }
-            set
-            {
-                id = string.IsNullOrEmpty(value) ? GetId() : value;
-            }
+            get => id;
+            set => id = string.IsNullOrEmpty(value) ? GetId() : value;
         }
 
         /// <summary>
         /// Gets or sets the URI of the WebHook.
         /// </summary>
-        [Required]
         public Uri WebHookUri { get; set; }
 
         /// <summary>
@@ -75,36 +67,18 @@ namespace Microsoft.AspNet.WebHooks
         /// which WebHook events that this WebHook will be notified for. The list of filters can be obtained from
         /// the registered <see cref="IWebHookFilterManager"/> instance.
         /// </summary>
-        public ISet<string> Filters
-        {
-            get
-            {
-                return _filters;
-            }
-        }
+        public ISet<string> Filters => _filters;
 
         /// <summary>
         /// Gets a set of additional HTTP headers that will be sent with the WebHook request.
         /// </summary>
-        public IDictionary<string, string> Headers
-        {
-            get
-            {
-                return _headers;
-            }
-        }
+        public IDictionary<string, string> Headers => _headers;
 
         /// <summary>
         /// Gets a set of additional case-insensitive properties that will be sent with the WebHook request
         /// as part of the HTTP request entity body.
         /// </summary>
-        public IDictionary<string, object> Properties
-        {
-            get
-            {
-                return _properties;
-            }
-        }
+        public IDictionary<string, object> Properties => _properties;
 
         private static string GetId()
         {

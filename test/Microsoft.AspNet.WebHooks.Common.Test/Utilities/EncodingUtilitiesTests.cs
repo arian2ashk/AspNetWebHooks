@@ -10,34 +10,24 @@ namespace Microsoft.AspNet.WebHooks.Utilities
 {
     public class EncodingUtilitiesTests
     {
-        public static TheoryData<string> HexData
-        {
-            get
+        public static TheoryData<string> HexData =>
+            new TheoryData<string>
             {
-                return new TheoryData<string>
-                {
-                    string.Empty,
-                    " ",
-                    "\r\n",
-                    "text",
-                    "你好世界",
-                    new string('你', 16 * 1024)
-                };
-            }
-        }
+                string.Empty,
+                " ",
+                "\r\n",
+                "text",
+                "你好世界",
+                new string('你', 16 * 1024)
+            };
 
-        public static TheoryData<string> InvalidHexData
-        {
-            get
+        public static TheoryData<string> InvalidHexData =>
+            new TheoryData<string>
             {
-                return new TheoryData<string>
-                {
-                    "E4BDA0E5A5BDE4B896E7958",
-                    "4BDA0E5A5BDE4B896E7958C",
-                    "E4BDA0E5A5MDE4B896E7958C"
-                };
-            }
-        }
+                "E4BDA0E5A5BDE4B896E7958",
+                "4BDA0E5A5BDE4B896E7958C",
+                "E4BDA0E5A5MDE4B896E7958C"
+            };
 
         [Theory]
         [MemberData(nameof(HexData))]

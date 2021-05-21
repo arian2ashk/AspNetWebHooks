@@ -20,22 +20,17 @@ namespace Microsoft.AspNet.WebHooks.Utilities
         {
         }
 
-        public static TheoryData<Type, Type, bool> IsTypeData
-        {
-            get
+        public static TheoryData<Type, Type, bool> IsTypeData =>
+            new TheoryData<Type, Type, bool>
             {
-                return new TheoryData<Type, Type, bool>
-                {
-                    { DateTime.Now.GetType(), typeof(DateTime), false },
-                    { DayOfWeek.Saturday.GetType(), typeof(int), false },
-                    { typeof(List<int>), typeof(List<string>), false },
-                    { typeof(KeyedCollection<string, string>), typeof(TestKeyedCollection), true },
-                    { typeof(ITestType), typeof(TestType), true },
-                    { "Hello".GetType(), typeof(string), true },
-                    { typeof(List<string>), typeof(List<string>), true },
-                };
-            }
-        }
+                { DateTime.Now.GetType(), typeof(DateTime), false },
+                { DayOfWeek.Saturday.GetType(), typeof(int), false },
+                { typeof(List<int>), typeof(List<string>), false },
+                { typeof(KeyedCollection<string, string>), typeof(TestKeyedCollection), true },
+                { typeof(ITestType), typeof(TestType), true },
+                { "Hello".GetType(), typeof(string), true },
+                { typeof(List<string>), typeof(List<string>), true },
+            };
 
         [Theory]
         [MemberData(nameof(IsTypeData))]

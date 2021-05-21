@@ -42,21 +42,16 @@ namespace Microsoft.AspNet.WebHooks
             _webHook = new WebHook();
         }
 
-        public static TheoryData<string, string> NormalizedFilterData
-        {
-            get
+        public static TheoryData<string, string> NormalizedFilterData =>
+            new TheoryData<string, string>
             {
-                return new TheoryData<string, string>
-                {
-                    { string.Empty, string.Empty },
-                    { "FILTER", "filter" },
-                    { "FiLTeR", "filter" },
-                    { "Filter", "filter" },
-                    { "filter", "Filter" },
-                    { "你好世界", "你好世界" },
-                };
-            }
-        }
+                { string.Empty, string.Empty },
+                { "FILTER", "filter" },
+                { "FiLTeR", "filter" },
+                { "Filter", "filter" },
+                { "filter", "Filter" },
+                { "你好世界", "你好世界" },
+            };
 
         [Theory]
         [InlineData(false, false)]

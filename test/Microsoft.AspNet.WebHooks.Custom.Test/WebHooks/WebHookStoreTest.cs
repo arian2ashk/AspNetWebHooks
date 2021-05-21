@@ -27,21 +27,9 @@ namespace Microsoft.AspNet.WebHooks
             _store = store;
         }
 
-        protected string TestUser
-        {
-            get
-            {
-                return "TestUser";
-            }
-        }
+        protected string TestUser => "TestUser";
 
-        protected IWebHookStore Store
-        {
-            get
-            {
-                return _store;
-            }
-        }
+        protected IWebHookStore Store => _store;
 
         [Fact]
         public async Task GetAllWebHooksAsync_ReturnsExpectedItems()

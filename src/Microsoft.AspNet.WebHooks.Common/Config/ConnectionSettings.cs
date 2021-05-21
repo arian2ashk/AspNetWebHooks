@@ -21,17 +21,8 @@ namespace Microsoft.AspNet.WebHooks.Config
         /// <param name="connectionString">The actual connection string.</param>
         public ConnectionSettings(string name, string connectionString)
         {
-            if (name == null)
-            {
-                throw new ArgumentNullException(nameof(name));
-            }
-            if (connectionString == null)
-            {
-                throw new ArgumentNullException(nameof(connectionString));
-            }
-
-            _name = name;
-            _connectionString = connectionString;
+            _name = name ?? throw new ArgumentNullException(nameof(name));
+            _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
         }
 
         /// <summary>
@@ -39,19 +30,9 @@ namespace Microsoft.AspNet.WebHooks.Config
         /// </summary>
         public string Name
         {
-            get
-            {
-                return _name;
-            }
+            get => _name;
 
-            set
-            {
-                if (value == null)
-                {
-                    throw new ArgumentNullException(nameof(value));
-                }
-                _name = value;
-            }
+            set => _name = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         /// <summary>
@@ -59,20 +40,9 @@ namespace Microsoft.AspNet.WebHooks.Config
         /// </summary>
         public string ConnectionString
         {
-            get
-            {
-                return _connectionString;
-            }
+            get => _connectionString;
 
-            set
-            {
-                if (value == null)
-                {
-                    throw new ArgumentNullException(nameof(value));
-                }
-
-                _connectionString = value;
-            }
+            set => _connectionString = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         /// <summary>

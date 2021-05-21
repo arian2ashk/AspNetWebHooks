@@ -135,6 +135,9 @@
   <data name="RegistrationController_RegistrationFailure" xml:space="preserve">
     <value>Could not register WebHook due to error: {0}</value>
   </data>
+  <data name="RegistrationController_RegistrationFailureOnId" xml:space="preserve">
+    <value>"The updated WebHook object has a different id than the one you are trying to update."</value>
+  </data>
   <data name="RegistrationController_UpdateFailure" xml:space="preserve">
     <value>Could not update WebHook due to error: {0}</value>
   </data>
