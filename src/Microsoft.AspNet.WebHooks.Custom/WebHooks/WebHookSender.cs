@@ -154,9 +154,9 @@ namespace Microsoft.AspNet.WebHooks
             switch (field)
             {
                 case JsonElement _:
-                    return JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(body)).RootElement.Clone().ToString();
+                    return JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(body)).RootElement.Clone().ToString()?.Replace(Environment.NewLine, "");
                 default:
-                   return JObject.FromObject(body).ToString();
+                   return JObject.FromObject(body).ToString().Replace(Environment.NewLine, "");
             }
         }
 
@@ -186,10 +186,9 @@ namespace Microsoft.AspNet.WebHooks
             var secret = Encoding.UTF8.GetBytes(workItem.WebHook.Secret);
             using (var hasher = new HMACSHA256(secret))
             {
-                var serializedBody = body;
-                request.Content = new StringContent(serializedBody, Encoding.UTF8, "application/json");
+                request.Content = new StringContent(body, Encoding.UTF8, "application/json");
 
-                var data = Encoding.UTF8.GetBytes(serializedBody);
+                var data = Encoding.UTF8.GetBytes(body);
                 var sha256 = hasher.ComputeHash(data);
                 var headerValue = string.Format(CultureInfo.InvariantCulture, SignatureHeaderValueTemplate, EncodingUtilities.ToHex(sha256));
                 request.Headers.Add(SignatureHeaderName, headerValue);

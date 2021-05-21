@@ -16,8 +16,8 @@ namespace Microsoft.AspNet.WebHooks
     public class WebHookSenderTests : IDisposable
     {
         private const string TestUser = "TestUser";
-        private const string SerializedWebHook = "{\r\n  \"Id\": \"1234567890\",\r\n  \"Attempt\": 1,\r\n  \"Properties\": {\r\n    \"p1\": \"pv1\"\r\n  },\r\n  \"Notifications\": [\r\n    {\r\n      \"Action\": \"a1\",\r\n      \"d1\": \"dv1\"\r\n    },\r\n    {\r\n      \"Action\": \"a1\",\r\n      \"d2\": \"http://localhost\"\r\n    }\r\n  ]\r\n}";
-        private const string WebHookSignature = "sha256=DCDEB62502988CDEDE464AF6A97566D61288C446CFC46F74F341E11173FF30A1";
+        private const string SerializedWebHook = @"{  ""Id"": ""1234567890"",  ""Attempt"": 1,  ""Properties"": {    ""p1"": ""pv1""  },  ""Notifications"": [    {      ""Action"": ""a1"",      ""d1"": ""dv1""    },    {      ""Action"": ""a1"",      ""d2"": ""http://localhost""    }  ]}";
+        private const string WebHookSignature = "sha256=B694D489E2CC93DD3E87A0F4FB8C298D7854D7D37079A60F148EA827C013BE0B";
 
         private readonly Mock<ILogger<WebHookSender>> _loggerMock;
 

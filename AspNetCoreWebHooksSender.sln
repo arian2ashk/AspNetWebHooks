@@ -13,13 +13,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.AspNet.WebHooks.C
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{8810D357-5804-4ACB-B449-7A65E49107EE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.AspNet.WebHooks.Common.Test", "Test\Microsoft.AspNet.WebHooks.Common.Test\Microsoft.AspNet.WebHooks.Common.Test.csproj", "{0401AB18-CA11-43CC-A90A-7B57DE27AA3A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.AspNet.WebHooks.Common.Test", "test\Microsoft.AspNet.WebHooks.Common.Test\Microsoft.AspNet.WebHooks.Common.Test.csproj", "{0401AB18-CA11-43CC-A90A-7B57DE27AA3A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.TestUtilities", "Test\Microsoft.TestUtilities\Microsoft.TestUtilities.csproj", "{00EC9DA5-B837-4395-8554-9BF7F8A9C4A7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.TestUtilities", "test\Microsoft.TestUtilities\Microsoft.TestUtilities.csproj", "{00EC9DA5-B837-4395-8554-9BF7F8A9C4A7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.AspNet.WebHooks.Custom.Test", "Test\Microsoft.AspNet.WebHooks.Custom.Test\Microsoft.AspNet.WebHooks.Custom.Test.csproj", "{5697303E-5394-4980-91B4-BC382F3DDF71}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.AspNet.WebHooks.Custom.Test", "test\Microsoft.AspNet.WebHooks.Custom.Test\Microsoft.AspNet.WebHooks.Custom.Test.csproj", "{5697303E-5394-4980-91B4-BC382F3DDF71}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.AspNet.WebHooks.Custom.Api.Test", "Test\Microsoft.AspNet.WebHooks.Custom.Api.Test\Microsoft.AspNet.WebHooks.Custom.Api.Test.csproj", "{843C4C0F-64D1-4E0A-95AC-9EE9990E7E65}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.AspNet.WebHooks.Custom.Api.Test", "test\Microsoft.AspNet.WebHooks.Custom.Api.Test\Microsoft.AspNet.WebHooks.Custom.Api.Test.csproj", "{843C4C0F-64D1-4E0A-95AC-9EE9990E7E65}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{728E5B2A-02B5-4109-A4E3-C2F26A2B3BDA}"
 EndProject
