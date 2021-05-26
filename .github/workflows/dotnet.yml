@@ -22,11 +22,10 @@ jobs:
     - name: Build
       run: dotnet build --no-restore
     - name: Test
-      run: dotnet test "test" --no-build --verbosity normal -r ./ -l:trx
+      run: dotnet test --no-build --verbosity normal -r ./ -l:trx
     - uses: dorny/test-reporter@v1
-      if: always()
+      if: success() || failure()
       with:
-        artifact: test-results
-        name: Test result
+        name: TestResults
         path: '*.trx'
         reporter: dotnet-trx
